@@ -17,15 +17,19 @@ class SendWebhookJob implements ShouldQueue
 
     public function handle()
     {
-        $url = 'http://localhost:8888/api/webhook/issuer-platform';
-        $secret = env('GIFTFLOW_WEBHOOK_SECRET', 'sua_secret_aqui');
+        // 1. Buscamos a URL e a Secret diretamente do seu .env
+        $url = env('GIFTFLOW_WEBHOOK_URL', 'http://localhost/api/webhook/issuer-platform');
+        $secret = env('GIFTFLOW_WEBHOOK_SECRET', 'favedev_secret_2025');
 
+        // 2. Preparamos o payload e geramos a assinatura HMAC SHA256 (Requisito 5 do desafio)
         $payload = json_encode($this->data);
         $signature = hash_hmac('sha256', $payload, $secret);
 
+        // 3. Enviamos o Post com os headers obrigatórios
         Http::withHeaders([
-            'X-GiftFlow-Signature' => $signature,
-            'Content-Type' => 'application/json',
+            'X-GiftFlow-Signature' => $signature, // Assinatura para validação do mock
+            'Accept'               => 'application/json',
+            'Content-Type'         => 'application/json',
         ])->post($url, $this->data);
     }
 }
