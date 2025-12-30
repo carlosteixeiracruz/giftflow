@@ -21,7 +21,7 @@ Route::post('/redeem', [GiftCardController::class, 'redeem']);
 Route::post('/webhook/issuer-platform', function (Request $request) {
     // 1. Recuperar a assinatura enviada no Header
     $signature = $request->header('X-GiftFlow-Signature');
-    
+
     // 2. Recuperar a Secret do .env (Usando a que definimos no seu arquivo)
     $secret = env('GIFTFLOW_WEBHOOK_SECRET', 'favedev_secret_2025');
 
@@ -39,10 +39,11 @@ Route::post('/webhook/issuer-platform', function (Request $request) {
 
     // 5. Simulação de Idempotência (Requisito 6)
     $eventId = $request->input('event_id');
-    
+    $code = $request->input('data.code') ?? $request->input('code');
+
     Log::info('Webhook GiftFlow recebido e validado com sucesso!', [
         'event_id' => $eventId,
-        'code' => $request->input('data.code')
+        'code' => $code
     ]);
 
     // Retorna 200 conforme exigido pelo desafio
